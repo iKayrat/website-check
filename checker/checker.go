@@ -48,14 +48,21 @@ func (sc *SiteCheck) CheckWebsite(contxt context.Context, urls []string) {
 
 			req, _ := http.NewRequestWithContext(ctx, "GET", urls[ii], nil)
 
-			client := http.DefaultClient
+			transport := &http.Transport{DisableKeepAlives: true}
+			client := &http.Client{Transport: transport}
 			resp, err := client.Do(req)
+			if resp != nil {
+				defer resp.Body.Close()
+			}
 
-			if err == nil && resp.StatusCode == 200 {
-				resp.Body.Close()
-			} else {
+			if err != nil {
 				return
 			}
+			// if err == nil && resp.StatusCode == 200 {
+			// 	resp.Body.Close()
+			// } else {
+			// 	return
+			// }
 
 			elapsed := time.Since(start).Seconds()
 
